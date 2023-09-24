@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/notifiers/auth_notifier.dart';
-import '../home_page/home_page.dart';
 
 
 class SignInPage extends ConsumerWidget {
@@ -48,7 +47,7 @@ class SignInPage extends ConsumerWidget {
                 width: 320,
                 child: ElevatedButton(
                   onPressed: () async {
-                    await authNotifier.signIn();
+                    await authNotifier.signUp();
                   },
                   style: ButtonStyle(
                     backgroundColor:

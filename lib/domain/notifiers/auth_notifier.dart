@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../repositories/firebase_api_repository.dart';
 
 part 'auth_notifier.freezed.dart';
 
@@ -16,13 +17,15 @@ class AuthState with _$AuthState {
 
 final authNotifierProvider =
     StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  return AuthNotifier(ref);
+  //firebaseApiRepositoryを注入
+  final firebaseApiRepository = ref.watch(firebaseApiRepositoryProvider);
+  return AuthNotifier(firebaseApiRepository);
 });
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  final Ref ref;
+  final FirebaseApiRepository _firebaseApiRepository;
 
-  AuthNotifier(this.ref) : super(AuthState()) {
+  AuthNotifier(this._firebaseApiRepository) : super(AuthState()) {
     Future.microtask(() {
       _init();
     });
@@ -32,9 +35,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final TextEditingController passwordController = TextEditingController();
 
   _init() async {
-    FirebaseAuth.instance
-        .authStateChanges()
-        .listen((User? user) {
+    _firebaseApiRepository.watchAuthState().listen((User? user) {
       if (user == null) {
         state = state.copyWith(isLogin: false);
       } else {
@@ -43,33 +44,32 @@ class AuthNotifier extends StateNotifier<AuthState> {
     });
   }
 
-  Future<void> signIn() async {
+  Future<void> signUp() async {
     try {
-      final result = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text, password: passwordController.text);
-      final User? user = result.user;
-      final String uid = user!.uid;
-      state = state.copyWith(currentUser: user);
-      print(state.currentUser);
-      // await createFirestoreUser(uid: uid);
+      final User? user = await _firebaseApiRepository.signUp(
+          emailController.text, passwordController.text
+      );
+      if (user != null) {
+        state = state.copyWith(currentUser: user);
+      }
     } on FirebaseAuthException catch (e) {
       debugPrint(e.toString());
     }
   }
 
   void signOut() async {
-    await FirebaseAuth.instance.signOut();
+    await _firebaseApiRepository.signOut();
     state = state.copyWith(currentUser: null);
   }
 
-  // Future<void> createFirestoreUser({required String uid}) async {
-  //   final FirestoreUser firestoreUser = FirestoreUser(
-  //     email: emailController.text,
-  //     githubUserName: githubUserNameController.text,
-  //     uid: uid,
-  //     githubApiKey: githubApiKeyController.text,
-  //   );
-  //   final Map<String, dynamic> userData = firestoreUser.toJson();
-  //   await FirebaseFirestore.instance.collection("users").doc(uid).set(userData);
-  // }
+// Future<void> createFirestoreUser({required String uid}) async {
+//   final FirestoreUser firestoreUser = FirestoreUser(
+//     email: emailController.text,
+//     githubUserName: githubUserNameController.text,
+//     uid: uid,
+//     githubApiKey: githubApiKeyController.text,
+//   );
+//   final Map<String, dynamic> userData = firestoreUser.toJson();
+//   await FirebaseFirestore.instance.collection("users").doc(uid).set(userData);
+// }
 }
