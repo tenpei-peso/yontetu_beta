@@ -8,7 +8,7 @@ class FirebaseApiRepositoryImpl implements FirebaseApiRepository {
   Stream<User?> watchAuthState() => _firebaseAuth.authStateChanges();
 
   @override
-  Future<User?> signIn(String email, String password) async {
+  Future<User?> signUp(String email, String password) async {
     final result = await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
     return result.user;
   }

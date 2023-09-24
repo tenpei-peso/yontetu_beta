@@ -8,7 +8,7 @@ final firebaseApiRepositoryProvider = Provider<FirebaseApiRepository>((ref) {
 
 abstract class FirebaseApiRepository {
   Stream<User?> watchAuthState();
-  Future<User?> signIn(String email, String password);
+  Future<User?> signUp(String email, String password);
   Future<void> signOut();
 // 他のFirebaseのメソッドもここに追加
 }

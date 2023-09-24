@@ -47,7 +47,7 @@ class SignInPage extends ConsumerWidget {
                 width: 320,
                 child: ElevatedButton(
                   onPressed: () async {
-                    await authNotifier.signIn();
+                    await authNotifier.signUp();
                   },
                   style: ButtonStyle(
                     backgroundColor:

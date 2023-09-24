@@ -44,9 +44,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     });
   }
 
-  Future<void> signIn() async {
+  Future<void> signUp() async {
     try {
-      final User? user = await _firebaseApiRepository.signIn(
+      final User? user = await _firebaseApiRepository.signUp(
           emailController.text, passwordController.text
       );
       if (user != null) {
