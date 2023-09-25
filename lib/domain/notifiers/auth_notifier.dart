@@ -57,7 +57,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  void signOut() async {
+  Future<void> signOut() async {
     await _firebaseApiRepository.signOut();
     state = state.copyWith(currentUser: null);
   }

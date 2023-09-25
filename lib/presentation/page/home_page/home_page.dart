@@ -1,6 +1,12 @@
+import 'package:beta/presentation/page/blue_page/blue_page.dart';
+import 'package:beta/presentation/page/green_page/green_page.dart';
+import 'package:beta/presentation/page/orange_page/orange_page.dart';
+import 'package:beta/presentation/page/red_page/red_page.dart';
+import 'package:beta/presentation/page/yellow_page/yellow_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import '../../../domain/notifiers/auth_notifier.dart';
 
@@ -11,128 +17,117 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authNotifier = ref.watch(authNotifierProvider.notifier);
 
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFd2ddde),
-        body: Column(
-          children: [
-            const TopIconBar(),
-            Container(
-              color: Colors.white,
-              child: const TabBar(
-                tabs: <Widget>[
-                  Tab(
-                      icon: Icon(
-                    Icons.cloud_outlined,
-                    color: Color(0xFFee7d50),
-                  )),
-                  Tab(
-                      icon: Icon(
-                    Icons.beach_access_sharp,
-                    color: Color(0xFFee7d50),
-                  )),
-                  Tab(
-                      icon: Icon(
-                    Icons.brightness_5_sharp,
-                    color: Color(0xFFee7d50),
-                  )),
-                ],
-              ),
-            ),
-            Expanded(
-              child: TabBarView(
-                children: <Widget>[
-                  Container(
-                    height: 300,
-                      width: 300,
-                      color: Colors.white,
-                      child: SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            authNotifier.signOut();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.black, // ボタンの背景色
-                            shape: RoundedRectangleBorder( // 丸い形
-                              borderRadius: BorderRadius.circular(30.0),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                          ),
-                          child: const Text(
-                            'ログアウト',
-                            style: TextStyle(color: Colors.white), // テキスト色は白色
-                          ),
-                        ),
-                      ),
-                      ),
-                  Container(
-                      color: Colors.white,
-                      child: Center(
-                          child: Text('くもり', style: TextStyle(fontSize: 50)
-                          )
-                      )
-                  ),
-                  Container(
-                      color: Colors.white,
-                      child: Center(
-                          child: Text('くもり', style: TextStyle(fontSize: 50)
-                          )
-                      )
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+    // ボトムバーに表示したい画面のリスト
+    final _pages = [
+      const RedPage(),
+      const BluePage(),
+      const YellowPage(),
+      const GreenPage(),
+      const OrangePage(),
+    ];
 
-class TopIconBar extends StatelessWidget {
-  const TopIconBar({
-    super.key,
-  });
+    // どのページを初期画面にするか
+    PersistentTabController _controller =
+        PersistentTabController(initialIndex: 0);
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.12,
-      child: const Align(
-        alignment: Alignment.bottomCenter,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Icon(
-                    Icons.favorite,
-                    color: Color(0xFFee7d50),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Icon(
-                    Icons.favorite,
-                    color: Color(0xFFee7d50),
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.0),
-              child: Icon(
-                Icons.favorite,
-                color: Color(0xFFee7d50),
-              ),
-            )
-          ],
+    return Scaffold(
+      body: PersistentTabView(
+        context,
+        controller: _controller,
+        screens: _pages, // 宣言した画面のリストを設定
+        navBarStyle: NavBarStyle.style1, // navBarのstyleを設定
+        itemAnimationProperties: const ItemAnimationProperties(
+          duration: Duration(milliseconds: 200),
+          curve: Curves.ease,
         ),
+        screenTransitionAnimation: const ScreenTransitionAnimation(
+          animateTabTransition: true,
+          curve: Curves.ease,
+          duration: Duration(milliseconds: 200),
+        ),
+        items: [
+          // 画面数の分、「PersistentBottomNavBarItem」を設定
+          PersistentBottomNavBarItem(
+            textStyle: const TextStyle(
+              fontSize: 14,
+            ),
+            iconSize: 30,
+            // 選択時のIcon
+            icon: const Icon(
+              Icons.home,
+            ),
+            // ラベル
+            title: 'ホーム',
+            // 選択時のColor
+            activeColorPrimary: Colors.red,
+            // 非選択時のColor
+            inactiveColorPrimary: Theme.of(context).disabledColor,
+          ),
+          PersistentBottomNavBarItem(
+            textStyle: const TextStyle(
+              fontSize: 14,
+            ),
+            iconSize: 30,
+            // 選択時のIcon
+            icon: const Icon(
+              Icons.person,
+            ),
+            // ラベル
+            title: 'プロフィール',
+            // 選択時のColor
+            activeColorPrimary: Colors.blue,
+            // 非選択時のColor
+            inactiveColorPrimary: Theme.of(context).disabledColor,
+          ),
+          PersistentBottomNavBarItem(
+            textStyle: const TextStyle(
+              fontSize: 14,
+            ),
+            iconSize: 30,
+            // 選択時のIcon
+            icon: const Icon(
+              Icons.task_alt,
+            ),
+            // ラベル
+            title: 'クエスト',
+            // 選択時のColor
+            activeColorPrimary: Colors.yellow,
+            // 非選択時のColor
+            inactiveColorPrimary: Theme.of(context).disabledColor,
+          ),
+          PersistentBottomNavBarItem(
+            textStyle: const TextStyle(
+              fontSize: 14,
+            ),
+            iconSize: 30,
+            // 選択時のIcon
+            icon: const Icon(
+              Icons.pets,
+            ),
+            // ラベル
+            title: '育成',
+            // 選択時のColor
+            activeColorPrimary: Colors.green,
+            // 非選択時のColor
+            inactiveColorPrimary: Theme.of(context).disabledColor,
+          ),
+          PersistentBottomNavBarItem(
+            textStyle: const TextStyle(
+              fontSize: 14,
+            ),
+            iconSize: 30,
+            // 選択時のIcon
+            icon: const Icon(
+              Icons.settings,
+            ),
+            // ラベル
+            title: '設定',
+            // 選択時のColor
+            activeColorPrimary: Colors.orange,
+            // 非選択時のColor
+            inactiveColorPrimary: Theme.of(context).disabledColor,
+          ),
+        ],
       ),
     );
   }
