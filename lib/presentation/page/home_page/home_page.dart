@@ -1,138 +1,60 @@
-import 'package:flutter/cupertino.dart';
+import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
+import 'package:beta/presentation/page/home_page/home_page_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../../domain/notifiers/auth_notifier.dart';
+import 'package:navigator_scope/navigator_scope.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authNotifier = ref.watch(authNotifierProvider.notifier);
+    final homePageNotifier = ref.watch(homePageNotifierProvider.notifier);
+    final bottomNavIndex = ref.watch(
+        homePageNotifierProvider.select((state) => state.bottomNavIndex));
 
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFd2ddde),
-        body: Column(
-          children: [
-            const TopIconBar(),
-            Container(
-              color: Colors.white,
-              child: const TabBar(
-                tabs: <Widget>[
-                  Tab(
-                      icon: Icon(
-                    Icons.cloud_outlined,
-                    color: Color(0xFFee7d50),
-                  )),
-                  Tab(
-                      icon: Icon(
-                    Icons.beach_access_sharp,
-                    color: Color(0xFFee7d50),
-                  )),
-                  Tab(
-                      icon: Icon(
-                    Icons.brightness_5_sharp,
-                    color: Color(0xFFee7d50),
-                  )),
-                ],
-              ),
-            ),
-            Expanded(
-              child: TabBarView(
-                children: <Widget>[
-                  Container(
-                    height: 300,
-                      width: 300,
-                      color: Colors.white,
-                      child: SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            authNotifier.signOut();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.black, // ボタンの背景色
-                            shape: RoundedRectangleBorder( // 丸い形
-                              borderRadius: BorderRadius.circular(30.0),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                          ),
-                          child: const Text(
-                            'ログアウト',
-                            style: TextStyle(color: Colors.white), // テキスト色は白色
-                          ),
-                        ),
-                      ),
-                      ),
-                  Container(
-                      color: Colors.white,
-                      child: Center(
-                          child: Text('くもり', style: TextStyle(fontSize: 50)
-                          )
-                      )
-                  ),
-                  Container(
-                      color: Colors.white,
-                      child: Center(
-                          child: Text('くもり', style: TextStyle(fontSize: 50)
-                          )
-                      )
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+    return Scaffold(
+      extendBody: true,
+      body: NavigatorScope( // A hub of local navigators
+          currentDestination: bottomNavIndex,
+          destinationCount: homePageNotifier.iconList.length,
+          destinationBuilder: (context, index) {
+            return NestedNavigator( // A local navigator
+              // Create the default page for this navigator
+              builder: (context) => homePageNotifier.pageList[index],
+            );
+          },
       ),
-    );
-  }
-}
-
-class TopIconBar extends StatelessWidget {
-  const TopIconBar({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.12,
-      child: const Align(
-        alignment: Alignment.bottomCenter,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Icon(
-                    Icons.favorite,
-                    color: Color(0xFFee7d50),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Icon(
-                    Icons.favorite,
-                    color: Color(0xFFee7d50),
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.0),
-              child: Icon(
-                Icons.favorite,
-                color: Color(0xFFee7d50),
-              ),
-            )
-          ],
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(
+          Icons.brightness_3,
+          color: Colors.orangeAccent,
         ),
+        onPressed: () {
+          null;
+        },
+        //params
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: AnimatedBottomNavigationBar.builder(
+        itemCount: homePageNotifier.iconList.length,
+        backgroundColor: Colors.white,
+        activeIndex: bottomNavIndex,
+        gapLocation: GapLocation.center,
+        notchSmoothness: NotchSmoothness.softEdge,
+        splashColor: Colors.orangeAccent,
+        splashSpeedInMilliseconds: 300,
+        onTap: (index) {
+          homePageNotifier.changeIndex(index);
+        },
+        tabBuilder: (int index, bool isActive) {
+          final color = isActive ? Colors.orange : Colors.grey;
+          return Icon(
+            homePageNotifier.iconList[index],
+            size: 32,
+            color: color,
+          );
+        },
       ),
     );
   }
